@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagination Example</title>
+    <style>
+        .pagination {
+            display: flex;
+            list-style: none;
+            padding: 0;
+        }
+        .pagination li {
+            margin: 0 5px;
+        }
+        .pagination button {
+            padding: 10px;
+        }
+        .active {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<table id="data-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Dummy data will be inserted here -->
+    </tbody>
+</table>
+
+<ul class="pagination" id="pagination">
+    <li><button onclick="prevPage()">Previous</button></li>
+    <!-- Page buttons will be inserted here -->
+    <li><button onclick="nextPage()">Next</button></li>
+</ul>
+
+<script>
+    const data = Array.from({ length: 100 }, (_, i) => ({ id: i + 1, name: `Item ${i + 1}` }));
+    const rowsPerPage = 10;
+    let currentPage = 1;
+
+    function renderTable() {
+        const tableBody = document.querySelector('#data-table tbody');
+        tableBody.innerHTML = '';
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const pageData = data.slice(start, end);
+
+        pageData.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${item.id}</td><td>${item.name}</td>`;
+            tableBody.appendChild(row);
+        });
+        
+        renderPagination();
+    }
+
+    function renderPagination() {
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = `<li><button onclick="prevPage()">Previous</button></li>`;
+        const totalPages = Math.ceil(data.length / rowsPerPage);
+        
+        // Calculate start and end page numbers
+        let startPage, endPage;
+        if (totalPages <= 5) {
+            startPage = 1;
+            endPage = totalPages;
+        } else {
+            startPage = Math.max(1, currentPage - 1);
+            endPage = Math.min(totalPages, currentPage + 1);
+            if (startPage > 1) {
+                pagination.innerHTML += `<li>...</li>`;
+            }
+            startPage = Math.max(1, endPage - 2);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pagination.innerHTML += `<li><button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button></li>`;
+        }
+
+        if (endPage < totalPages) {
+            pagination.innerHTML += `<li>...</li>`;
+        }
+        
+        pagination.innerHTML += `<li><button onclick="nextPage()">Next</button></li>`;
+    }
+
+    function prevPage() {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    }
+
+    function nextPage() {
+        const totalPages = Math.ceil(data.length / rowsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderTable();
+        }
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        renderTable();
+    }
+
+    // Initial render
+    renderTable();
+</script>
+
+</body>
+</html>
